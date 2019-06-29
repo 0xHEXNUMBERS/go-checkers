@@ -2,11 +2,13 @@ package main
 
 import (
 	"fmt"
+	"errors"
 )
 
 const (
 	ROWS = 8
 	COLS = 4
+	ERR_INTERFACE_FAIL = errors.New("Failed to convert input interface to a Move")
 )
 
 type Board [][]byte
@@ -99,6 +101,13 @@ func (board Board) GetActions() []interface{} {
 		}
 	}
 	return moves
+}
+
+func (board Board) ApplyAction(m interface{}) (Board, error) {
+	move, ok := m.(Move)
+	if !ok {
+		return Board{}, ERR_INTERFACE_FAIL
+	}
 }
 
 func main() {
