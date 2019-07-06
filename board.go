@@ -11,7 +11,9 @@ const (
 )
 
 var (
-	ERR_INTERFACE_FAIL = errors.New("Failed to convert input interface to a Move")
+	ERR_INTERFACE_FAIL     = errors.New("Failed to convert input interface to a Move")
+	ERR_GAME_NOT_OVER      = errors.New("Game is not finished")
+	ERR_INVALID_GAME_STATE = errors.New("Invalid game state")
 )
 
 type Board [ROWS][COLS]byte
@@ -397,6 +399,27 @@ func (g Game) IsTerminalState() bool {
 	return true
 }
 
+func (g Game) WinningPlayers() ([]byte, error) {
+	if !g.IsTerminalState() {
+		return nil, ERR_GAME_NOT_OVER
+	}
+
+	for i := 0; i < ROWS; i++ {
+		for j := 0; j < COLS; j++ {
+			if g.Board[i][j] == '_' {
+				continue
+			}
+
+			if g.Board[i][j] == 'o' || g.Board[i][j] == 'O' {
+				return []byte{'o'}, nil
+			} else {
+				return []byte{'x'}, nil
+			}
+		}
+	}
+	return nil, ERR_INVALID_GAME_STATE
+}
+
 func main() {
 	game := NewGameCapture()
 	fmt.Println(game)
@@ -410,5 +433,8 @@ func main() {
 		}
 		fmt.Println(game2)
 		fmt.Println("Terminal:", game2.IsTerminalState())
+		winners, err := game2.WinningPlayers()
+		fmt.Println("Winner:", winners)
+		fmt.Println(err)
 	}
 }
