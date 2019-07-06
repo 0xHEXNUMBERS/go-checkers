@@ -31,9 +31,26 @@ func (p position) String() string {
 	return fmt.Sprintf("%d - %d", p.y, p.x)
 }
 
+type capturedPieces []position
+
+func (c capturedPieces) Len() int {
+	return len(c)
+}
+
+func (c capturedPieces) Less(i, j int) bool {
+	if c[i].y < c[j].y {
+		return true
+	}
+	return c[i].x < c[j].x
+}
+
+func (c capturedPieces) Swap(i, j int) {
+	c[i], c[j] = c[j], c[i]
+}
+
 type Move struct {
 	start, end position
-	capturedPieces []position
+	capturedPieces
 }
 
 func (m Move) String() string {
