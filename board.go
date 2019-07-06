@@ -76,7 +76,7 @@ func NewGameCapture() Game {
 	board[2][2] = 'X'
 	board[3][2] = 'o'
 	board[3][3] = 'o'
-	return Game{Board: board}
+	return Game{Board: board, oTurn: true}
 }
 
 func NewGameCombo() Game {
@@ -369,8 +369,36 @@ func (g Game) ApplyAction(move interface{}) (Game, error) {
 	return g, nil
 }
 
+func (g Game) IsTerminalState() bool {
+	//Count the number of o's and x's on the field
+	//If there are at least 1 of each, the game isn't
+	//finished yet. Otherwise, the game is over
+	var oCount int
+	var xCount int
+
+	for i := 0; i < ROWS; i++ {
+		for j := 0; j < COLS; j++ {
+			if g.Board[i][j] == '_' {
+				continue
+			}
+
+			if g.Board[i][j] == 'o' || g.Board[i][j] == 'O' {
+				oCount++
+			} else {
+				xCount++
+			}
+
+			if oCount > 0 && xCount > 0 {
+				return false
+			}
+		}
+	}
+
+	return true
+}
+
 func main() {
-	game := NewGameCombo3()
+	game := NewGameCapture()
 	fmt.Println(game)
 	moves := game.GetActions()
 	for _, m := range moves {
@@ -381,5 +409,6 @@ func main() {
 			continue
 		}
 		fmt.Println(game2)
+		fmt.Println("Terminal:", game2.IsTerminalState())
 	}
 }
