@@ -9,24 +9,17 @@ type position struct {
 }
 
 func (p position) String() string {
-	return fmt.Sprintf("%d - %d", p.y, p.x)
+	return fmt.Sprintf("%d-%d", p.y, p.x)
 }
 
-type capturedPieces []position
+type capturedPieces string
 
-func (c capturedPieces) Len() int {
-	return len(c)
-}
-
-func (c capturedPieces) Less(i, j int) bool {
-	if c[i].y < c[j].y {
-		return true
+func (c *capturedPieces) addPiece(p position) {
+	if len(*c) == 0 {
+		*c = (capturedPieces)(p.String())
+	} else {
+		*c += (capturedPieces)("|" + p.String())
 	}
-	return c[i].x < c[j].x
-}
-
-func (c capturedPieces) Swap(i, j int) {
-	c[i], c[j] = c[j], c[i]
 }
 
 type Move struct {
@@ -35,13 +28,5 @@ type Move struct {
 }
 
 func (m Move) String() string {
-	str := fmt.Sprintf("{%s -> %s", m.start, m.end)
-	if m.capturedPieces != nil {
-		str += " | "
-		for _, p := range m.capturedPieces {
-			str += fmt.Sprintf("%s ", p)
-		}
-	}
-	str += "}"
-	return str
+	return fmt.Sprintf("{%s -> %s%s}", m.start, m.end, m.capturedPieces)
 }

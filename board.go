@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"fmt"
+	"strings"
 )
 
 const (
@@ -170,14 +171,14 @@ func (b *Board) comboCheck(i, j, si, sj int, verticalMoves []int, player byte) [
 						move := Move{
 							start:          position{si, sj},
 							end:            position{i + vert + vert, j - 1},
-							capturedPieces: make([]position, 1),
 						}
-						move.capturedPieces[0] = position{i + vert, j - horiz}
+						move.capturedPieces.addPiece(
+							position{i + vert, j - horiz},
+						)
 						moves = append(moves, move)
 					} else {
 						for index, _ := range combos {
-							combos[index].capturedPieces = append(
-								combos[index].capturedPieces,
+							combos[index].capturedPieces.addPiece(
 								position{i + vert, j - horiz},
 							)
 						}
@@ -206,14 +207,14 @@ func (b *Board) comboCheck(i, j, si, sj int, verticalMoves []int, player byte) [
 						move := Move{
 							start:          position{si, sj},
 							end:            position{i + vert + vert, j + 1},
-							capturedPieces: make([]position, 1),
 						}
-						move.capturedPieces[0] = position{i + vert, j + (1 - horiz)}
+						move.capturedPieces.addPiece(
+							position{i + vert, j + (1 - horiz)},
+						)
 						moves = append(moves, move)
 					} else {
 						for index, _ := range combos {
-							combos[index].capturedPieces = append(
-								combos[index].capturedPieces,
+							combos[index].capturedPieces.addPiece(
 								position{i + vert, j + (1 - horiz)},
 							)
 						}
@@ -323,8 +324,13 @@ func (g Game) ApplyAction(m Move) (Game, error) {
 	}
 
 	//Remove captured pieces
-	for _, p := range m.capturedPieces {
-		g.Board[p.y][p.x] = '_'
+	//Captured pieces fmt: "y0-x0|y1-x1|...|yn-xn"
+	removePieces := strings.Split((string)(m.capturedPieces), "|")
+	for _, position := range removePieces {
+		var y int
+		var x int
+		fmt.Sscanf(position, "%d-%d", &y, &x)
+		g.Board[y][x] = '_'
 	}
 
 	//Upgrade
