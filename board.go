@@ -1,8 +1,8 @@
 package main
 
 import (
-	"fmt"
 	"errors"
+	"fmt"
 )
 
 const (
@@ -71,7 +71,7 @@ func NewGame() Game {
 			board[i][j] = '_'
 		}
 	}
-	for i := 0; i < (ROWS / 2) - 1; i++ {
+	for i := 0; i < (ROWS/2)-1; i++ {
 		for j := 0; j < COLS; j++ {
 			board[i][j] = 'x'
 		}
@@ -152,7 +152,7 @@ func NewGameUpgrade() Game {
 }
 
 func rowParity(i int) bool {
-	return i % 2 == 0
+	return i%2 == 0
 }
 
 func (b Board) String() string {
@@ -160,7 +160,7 @@ func (b Board) String() string {
 	for i := 0; i < ROWS; i++ {
 		str += "["
 		for j := 0; j < COLS; j++ {
-			if i % 2 == 1 {
+			if i%2 == 1 {
 				str += fmt.Sprintf("%c|_|", b[i][j])
 			} else {
 				str += fmt.Sprintf("_|%c|", b[i][j])
@@ -210,17 +210,17 @@ func (b *Board) comboCheck(i, j, si, sj int, verticalMoves []int, player byte) [
 
 					if combos == nil {
 						move := Move{
-							start: position{si, sj},
-							end: position{i+vert+vert, j-1},
+							start:          position{si, sj},
+							end:            position{i + vert + vert, j - 1},
 							capturedPieces: make([]position, 1),
 						}
-						move.capturedPieces[0] = position{i+vert, j-horiz}
+						move.capturedPieces[0] = position{i + vert, j - horiz}
 						moves = append(moves, move)
 					} else {
 						for index, _ := range combos {
 							combos[index].capturedPieces = append(
 								combos[index].capturedPieces,
-								position{i+vert, j-horiz},
+								position{i + vert, j - horiz},
 							)
 						}
 						moves = append(moves, combos...)
@@ -246,17 +246,17 @@ func (b *Board) comboCheck(i, j, si, sj int, verticalMoves []int, player byte) [
 
 					if combos == nil {
 						move := Move{
-							start: position{si, sj},
-							end: position{i+vert+vert, j+1},
+							start:          position{si, sj},
+							end:            position{i + vert + vert, j + 1},
 							capturedPieces: make([]position, 1),
 						}
-						move.capturedPieces[0] = position{i+vert, j+(1-horiz)}
+						move.capturedPieces[0] = position{i + vert, j + (1 - horiz)}
 						moves = append(moves, move)
 					} else {
 						for index, _ := range combos {
 							combos[index].capturedPieces = append(
 								combos[index].capturedPieces,
-								position{i+vert, j+(1-horiz)},
+								position{i + vert, j + (1 - horiz)},
 							)
 						}
 						moves = append(moves, combos...)
@@ -290,7 +290,7 @@ func (b Board) checkDirections(i, j int, verticalMoves []int, player byte) []Mov
 				//Add the possible move
 				move := Move{
 					start: position{i, j},
-					end: position{i+vert, j-horiz},
+					end:   position{i + vert, j - horiz},
 				}
 				moves = append(moves, move)
 			}
@@ -302,7 +302,7 @@ func (b Board) checkDirections(i, j int, verticalMoves []int, player byte) []Mov
 				//Add the possible move
 				move := Move{
 					start: position{i, j},
-					end: position{i+vert, j+(1-horiz)},
+					end:   position{i + vert, j + (1 - horiz)},
 				}
 				moves = append(moves, move)
 			}
@@ -333,7 +333,7 @@ func (g Game) GetActions() []Move {
 				continue
 			}
 			if g.oTurn && (g.Board[i][j] == 'x' || g.Board[i][j] == 'X') ||
-			  !g.oTurn && (g.Board[i][j] == 'o' || g.Board[i][j] == 'O') {
+				!g.oTurn && (g.Board[i][j] == 'o' || g.Board[i][j] == 'O') {
 				continue
 			}
 			moves = append(moves, g.getMovesFromPos(i, j)...)
@@ -370,7 +370,7 @@ func (g Game) ApplyAction(m Move) (Game, error) {
 	}
 
 	//Upgrade
-	if m.end.y == ROWS - 1 && g.Board[m.end.y][m.end.x] == 'x' {
+	if m.end.y == ROWS-1 && g.Board[m.end.y][m.end.x] == 'x' {
 		g.Board[m.end.y][m.end.x] = 'X'
 	} else if m.end.y == 0 && g.Board[m.end.y][m.end.x] == 'o' {
 		g.Board[m.end.y][m.end.x] = 'O'
