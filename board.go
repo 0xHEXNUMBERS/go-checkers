@@ -11,7 +11,6 @@ const (
 )
 
 var (
-	ERR_INTERFACE_FAIL     = errors.New("Failed to convert input interface to a Move")
 	ERR_GAME_NOT_OVER      = errors.New("Game is not finished")
 	ERR_INVALID_GAME_STATE = errors.New("Invalid game state")
 )
@@ -269,8 +268,8 @@ func (b *Board) comboCheck(i, j, si, sj int, verticalMoves []int, player byte) [
 	return moves
 }
 
-func (b Board) checkDirections(i, j int, verticalMoves []int, player byte) []interface{} {
-	var moves []interface{} = nil
+func (b Board) checkDirections(i, j int, verticalMoves []int, player byte) []Move {
+	var moves []Move = nil
 
 	//Get all combo moves
 	combos := b.comboCheck(i, j, i, j, verticalMoves, player)
@@ -312,7 +311,7 @@ func (b Board) checkDirections(i, j int, verticalMoves []int, player byte) []int
 	return moves
 }
 
-func (b Board) getMovesFromPos(i, j int) []interface{} {
+func (b Board) getMovesFromPos(i, j int) []Move {
 	verticalMoves := make([]int, 0)
 	if b[i][j] == 'X' || b[i][j] == 'O' {
 		verticalMoves = append(verticalMoves, 1, -1)
@@ -326,8 +325,8 @@ func (b Board) getMovesFromPos(i, j int) []interface{} {
 	return moves
 }
 
-func (g Game) GetActions() []interface{} {
-	var moves []interface{} = make([]interface{}, 0)
+func (g Game) GetActions() []Move {
+	var moves []Move = nil
 	for i := 0; i < ROWS; i++ {
 		for j := 0; j < COLS; j++ {
 			if g.Board[i][j] == '_' {
@@ -343,7 +342,7 @@ func (g Game) GetActions() []interface{} {
 
 	//Weed out actions that lead to the same result
 	uniqueActions := make(map[Game]bool)
-	var ret []interface{} = nil
+	var ret []Move = nil
 
 	for _, m := range moves {
 		//Here, ApplyAction() can't error out
@@ -358,12 +357,7 @@ func (g Game) GetActions() []interface{} {
 	return ret
 }
 
-func (g Game) ApplyAction(move interface{}) (Game, error) {
-	m, ok := move.(Move)
-	if !ok {
-		return g, ERR_INTERFACE_FAIL
-	}
-
+func (g Game) ApplyAction(m Move) (Game, error) {
 	//Move starting piece
 	if m.end.y != m.start.y || m.end.x != m.start.x {
 		g.Board[m.end.y][m.end.x] = g.Board[m.start.y][m.start.x]
