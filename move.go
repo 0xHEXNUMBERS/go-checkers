@@ -28,5 +28,5 @@ type Move struct {
 }
 
 func (m Move) String() string {
-	return fmt.Sprintf("{%s -> %s%s}", m.start, m.end, m.capturedPieces)
+	return fmt.Sprintf("{%s -> %s {%s}}", m.start, m.end, m.capturedPieces)
 }
