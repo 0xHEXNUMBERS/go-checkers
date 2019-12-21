@@ -1,10 +1,5 @@
 package main
 
-import (
-	"fmt"
-	"strings"
-)
-
 type Game struct {
 	Board
 	oTurn bool
@@ -136,14 +131,9 @@ func (g Game) ApplyAction(m Move) (Game, error) {
 		g.Board[m.start.y][m.start.x] = '_'
 	}
 
-	//Remove captured pieces
-	//Captured pieces fmt: "y0-x0|y1-x1|...|yn-xn"
-	removePieces := strings.Split((string)(m.capturedPieces), "|")
-	for _, position := range removePieces {
-		var y int
-		var x int
-		fmt.Sscanf(position, "%d-%d", &y, &x)
-		g.Board[y][x] = '_'
+	removePieces := m.getCapturedPieces()
+	for _, p := range removePieces {
+		g.Board[p.y][p.x] = '_'
 	}
 
 	//Upgrade

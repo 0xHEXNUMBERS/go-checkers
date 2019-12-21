@@ -71,13 +71,13 @@ func (b *Board) comboCheck(i, j, si, sj int, verticalMoves []int, player byte) [
 							start: position{si, sj},
 							end:   position{i + vert + vert, j - 1},
 						}
-						move.capturedPieces.addPiece(
+						move.addCapturedPiece(
 							position{i + vert, j - horiz},
 						)
 						moves = append(moves, move)
 					} else {
 						for index, _ := range combos {
-							combos[index].capturedPieces.addPiece(
+							combos[index].addCapturedPiece(
 								position{i + vert, j - horiz},
 							)
 						}
@@ -107,13 +107,13 @@ func (b *Board) comboCheck(i, j, si, sj int, verticalMoves []int, player byte) [
 							start: position{si, sj},
 							end:   position{i + vert + vert, j + 1},
 						}
-						move.capturedPieces.addPiece(
+						move.addCapturedPiece(
 							position{i + vert, j + (1 - horiz)},
 						)
 						moves = append(moves, move)
 					} else {
 						for index, _ := range combos {
-							combos[index].capturedPieces.addPiece(
+							combos[index].addCapturedPiece(
 								position{i + vert, j + (1 - horiz)},
 							)
 						}
