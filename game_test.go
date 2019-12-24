@@ -158,7 +158,7 @@ func TestGetComboActions(t *testing.T) {
 
 	gameFinish, err := game.ApplyAction(actionsWant[0])
 	if err != nil {
-		t.Errorf("Could not apply combo winning action: %s", err)
+		t.Errorf("Could not apply winning combo action: %s", err)
 	}
 
 	if !gameFinish.IsTerminalState() {
@@ -174,5 +174,21 @@ func TestGetComboActions(t *testing.T) {
 		t.Errorf("Winning combo action did not result in the correct player winning: want 'x', got '%c'",
 			player[0],
 		)
+	}
+
+	for i := 1; i < len(actionsWant); i++ {
+		gameCont, err := game.ApplyAction(actionsWant[i])
+		if err != nil {
+			t.Errorf("Could not apply non-terminal action: %s", err)
+		}
+
+		if gameCont.IsTerminalState() {
+			t.Errorf("Non-terminal action resulted in a terminal state")
+		}
+
+		_, err = gameCont.WinningPlayers()
+		if err == nil {
+			t.Errorf("Non-terminal action resulted in a state with winning players: %s", err)
+		}
 	}
 }
