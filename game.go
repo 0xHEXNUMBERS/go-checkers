@@ -5,6 +5,7 @@ import "errors"
 var (
 	ERR_GAME_NOT_OVER      = errors.New("Game is not finished")
 	ERR_INVALID_GAME_STATE = errors.New("Invalid game state")
+	ERR_MOVE_NOT_IN_BOUNDS = errors.New("Move is not in bounds")
 )
 
 type Game struct {
@@ -65,6 +66,10 @@ func (g Game) GetActions() []Move {
 }
 
 func (g Game) ApplyAction(m Move) (Game, error) {
+	if !m.inBounds() {
+		return Game{}, ERR_MOVE_NOT_IN_BOUNDS
+	}
+
 	//Move starting piece
 	if m.end.y != m.start.y || m.end.x != m.start.x {
 		g.Board[m.end.y][m.end.x] = g.Board[m.start.y][m.start.x]

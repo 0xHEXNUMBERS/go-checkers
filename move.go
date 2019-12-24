@@ -14,9 +14,17 @@ func (p position) String() string {
 	return fmt.Sprintf("%d-%d", p.y, p.x)
 }
 
+func (p position) inBounds() bool {
+	return inBounds(p.y, p.x)
+}
+
 type Move struct {
 	start, end     position
 	capturedPieces string
+}
+
+func (m Move) inBounds() bool {
+	return m.start.inBounds() && m.end.inBounds()
 }
 
 func (m *Move) addCapturedPiece(p position) {
