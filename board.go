@@ -38,6 +38,15 @@ func (b Board) isOppositePlayer(i, j int, player byte) bool {
 func (b *Board) comboCheck(i, j, si, sj int, verticalMoves []int, player byte) []Move {
 	var moves []Move = nil
 
+	if i != si || j != sj {
+		moves = []Move{
+			Move{
+				start: position{si, sj},
+				end:   position{i, j},
+			},
+		}
+	}
+
 	horiz := 1
 	if rowParity(i) {
 		horiz = 0
@@ -123,12 +132,6 @@ func (b *Board) comboCheck(i, j, si, sj int, verticalMoves []int, player byte) [
 func (b Board) checkDirections(i, j int, verticalMoves []int, player byte) []Move {
 	var moves []Move = nil
 
-	//Get all combo moves
-	combos := b.comboCheck(i, j, i, j, verticalMoves, player)
-	for _, m := range combos {
-		moves = append(moves, m)
-	}
-
 	horiz := 1
 	if rowParity(i) {
 		horiz = 0
@@ -173,6 +176,7 @@ func (b Board) getMovesFromPos(i, j int) []Move {
 		verticalMoves = append(verticalMoves, -1)
 	}
 
-	moves := b.checkDirections(i, j, verticalMoves, b[i][j])
+	moves := b.comboCheck(i, j, i, j, verticalMoves, b[i][j])
+	moves = append(moves, b.checkDirections(i, j, verticalMoves, b[i][j])...)
 	return moves
 }

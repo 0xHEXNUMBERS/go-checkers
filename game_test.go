@@ -90,30 +90,63 @@ func NewGameUpgrade() Game {
 func TestGetComboActions(t *testing.T) {
 	game := NewGameCombo()
 	actionsGot := game.GetActions()
-	if len(actionsGot) != 3 {
-		t.Errorf(
-			"Didn't get expected number of actions: got %d, wanted %d",
-			len(actionsGot),
-			3,
-		)
-	}
+
+	startPos := position{2, 2}
 
 	actionsWant := []Move{
 		Move{
-			start:          position{2, 2},
+			start:          startPos,
 			end:            position{2, 2},
 			capturedPieces: "1-1|1-2|3-1|3-2",
 		},
 		Move{
-			start:          position{2, 2},
+			start:          startPos,
+			end:            position{4, 1},
+			capturedPieces: "3-2",
+		},
+		Move{
+			start:          startPos,
+			end:            position{2, 0},
+			capturedPieces: "3-1|3-2",
+		},
+		Move{
+			start:          startPos,
+			end:            position{0, 1},
+			capturedPieces: "1-1|3-1|3-2",
+		},
+		Move{
+			start:          startPos,
+			end:            position{0, 1},
+			capturedPieces: "1-2",
+		},
+		Move{
+			start:          startPos,
+			end:            position{2, 0},
+			capturedPieces: "1-1|1-2",
+		},
+		Move{
+			start:          startPos,
+			end:            position{4, 1},
+			capturedPieces: "1-1|1-2|3-1",
+		},
+		Move{
+			start:          startPos,
 			end:            position{3, 3},
 			capturedPieces: "",
 		},
 		Move{
-			start:          position{2, 2},
+			start:          startPos,
 			end:            position{1, 3},
 			capturedPieces: "",
 		},
+	}
+
+	if len(actionsGot) != len(actionsWant) {
+		t.Errorf(
+			"Didn't get expected number of actions: got %d, wanted %d",
+			len(actionsGot),
+			len(actionsWant),
+		)
 	}
 
 	fmt.Println(actionsGot)
