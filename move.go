@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"sort"
 	"strings"
 )
 
@@ -19,11 +20,13 @@ type Move struct {
 }
 
 func (m *Move) addCapturedPiece(p position) {
-	c := m.capturedPieces
-	if len(c) == 0 {
-		c = p.String()
+	if len(m.capturedPieces) == 0 {
+		m.capturedPieces = p.String()
 	} else {
-		c += "|" + p.String()
+		pieces := strings.Split(m.capturedPieces, "|")
+		pieces = append(pieces, p.String())
+		sort.Strings(pieces)
+		m.capturedPieces = strings.Join(pieces, "|")
 	}
 }
 
