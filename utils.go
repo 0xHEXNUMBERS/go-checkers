@@ -1,4 +1,4 @@
-package main
+package checkers
 
 func rowParity(i int) bool {
 	return i%2 == 0

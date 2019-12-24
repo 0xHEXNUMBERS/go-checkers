@@ -1,18 +1,12 @@
-package main
+package checkers
 
 import (
-	"errors"
 	"fmt"
 )
 
 const (
 	ROWS = 8
 	COLS = 4
-)
-
-var (
-	ERR_GAME_NOT_OVER      = errors.New("Game is not finished")
-	ERR_INVALID_GAME_STATE = errors.New("Invalid game state")
 )
 
 type Board [ROWS][COLS]byte

@@ -1,4 +1,11 @@
-package main
+package checkers
+
+import "errors"
+
+var (
+	ERR_GAME_NOT_OVER      = errors.New("Game is not finished")
+	ERR_INVALID_GAME_STATE = errors.New("Invalid game state")
+)
 
 type Game struct {
 	Board
@@ -23,73 +30,6 @@ func NewGame() Game {
 		}
 	}
 	return Game{Board: board}
-}
-
-func NewGameCapture() Game {
-	var board Board
-	for i := 0; i < ROWS; i++ {
-		for j := 0; j < COLS; j++ {
-			board[i][j] = '_'
-		}
-	}
-	board[2][2] = 'X'
-	board[3][2] = 'o'
-	board[3][3] = 'o'
-	return Game{Board: board, oTurn: true}
-}
-
-func NewGameCombo() Game {
-	var board Board
-	for i := 0; i < ROWS; i++ {
-		for j := 0; j < COLS; j++ {
-			board[i][j] = '_'
-		}
-	}
-	board[2][2] = 'X'
-	board[3][1] = 'o'
-	board[3][2] = 'o'
-	board[1][1] = 'o'
-	board[1][2] = 'o'
-	return Game{Board: board}
-}
-
-func NewGameCombo2() Game {
-	var board Board
-	for i := 0; i < ROWS; i++ {
-		for j := 0; j < COLS; j++ {
-			board[i][j] = '_'
-		}
-	}
-	board[0][0] = 'x'
-	board[1][1] = 'o'
-	board[3][2] = 'o'
-	board[5][2] = 'o'
-	return Game{Board: board}
-}
-
-func NewGameCombo3() Game {
-	var board Board
-	for i := 0; i < ROWS; i++ {
-		for j := 0; j < COLS; j++ {
-			board[i][j] = '_'
-		}
-	}
-	board[0][3] = 'x'
-	board[1][3] = 'o'
-	board[3][2] = 'o'
-	board[5][2] = 'o'
-	return Game{Board: board}
-}
-
-func NewGameUpgrade() Game {
-	var board Board
-	for i := 0; i < ROWS; i++ {
-		for j := 0; j < COLS; j++ {
-			board[i][j] = '_'
-		}
-	}
-	board[1][0] = 'o'
-	return Game{board, true}
 }
 
 func (g Game) GetActions() []Move {
