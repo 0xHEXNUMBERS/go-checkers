@@ -1,7 +1,6 @@
 package checkers
 
 import (
-	"fmt"
 	"reflect"
 	"testing"
 )
@@ -148,9 +147,6 @@ func TestGetComboActions(t *testing.T) {
 			len(actionsWant),
 		)
 	}
-
-	fmt.Println(actionsGot)
-	fmt.Println(actionsWant)
 
 	if !containSameMoves(actionsGot, actionsWant) {
 		t.Error("Actions collected are not the same as the actions we wanted")
