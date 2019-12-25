@@ -129,7 +129,15 @@ func (b *Board) comboCheck(i, j, si, sj int, verticalMoves []int, player byte) [
 	return moves
 }
 
-func (b Board) checkDirections(i, j int, verticalMoves []int, player byte) []Move {
+func (b Board) isSpotVacant(i, j int) bool {
+	if !inBounds(i, j) {
+		return false
+	}
+
+	return b[i][j] == '_'
+}
+
+func (b Board) checkForAdjacentVacantpots(i, j int, verticalMoves []int) []Move {
 	var moves []Move = nil
 
 	horiz := 1
@@ -139,28 +147,21 @@ func (b Board) checkDirections(i, j int, verticalMoves []int, player byte) []Mov
 
 	for _, vert := range verticalMoves {
 		//Moving left
-		if inBounds(i+vert, j-horiz) {
-			if b[i+vert][j-horiz] == '_' {
-				//If we're jumping to an empty spot,
-				//Add the possible move
-				move := Move{
-					start: position{i, j},
-					end:   position{i + vert, j - horiz},
-				}
-				moves = append(moves, move)
+		if b.isSpotVacant(i+vert, j-horiz) {
+			move := Move{
+				start: position{i, j},
+				end:   position{i + vert, j - horiz},
 			}
+			moves = append(moves, move)
 		}
+
 		//Moving right
-		if inBounds(i+vert, j+(1-horiz)) {
-			if b[i+vert][j+(1-horiz)] == '_' {
-				//If we're jumping to an empty spot,
-				//Add the possible move
-				move := Move{
-					start: position{i, j},
-					end:   position{i + vert, j + (1 - horiz)},
-				}
-				moves = append(moves, move)
+		if b.isSpotVacant(i+vert, j+(1-horiz)) {
+			move := Move{
+				start: position{i, j},
+				end:   position{i + vert, j + (1 - horiz)},
 			}
+			moves = append(moves, move)
 		}
 	}
 	return moves
@@ -177,6 +178,6 @@ func (b Board) getMovesFromPos(i, j int) []Move {
 	}
 
 	moves := b.comboCheck(i, j, i, j, verticalMoves, b[i][j])
-	moves = append(moves, b.checkDirections(i, j, verticalMoves, b[i][j])...)
+	moves = append(moves, b.checkForAdjacentVacantpots(i, j, verticalMoves)...)
 	return moves
 }
