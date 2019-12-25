@@ -35,7 +35,7 @@ func (b Board) isOppositePlayer(i, j int, player byte) bool {
 	}
 }
 
-func (b *Board) comboCheck(i, j, si, sj int, verticalMoves []int, player byte) []Move {
+func (b *Board) captureCheck(i, j, si, sj int, verticalMoves []int, player byte) []Move {
 	var moves []Move = nil
 
 	if i != si || j != sj {
@@ -53,17 +53,20 @@ func (b *Board) comboCheck(i, j, si, sj int, verticalMoves []int, player byte) [
 	}
 
 	for _, vert := range verticalMoves {
-		//Moveing left
+		//Moving left
 		if inBounds(i+vert, j-horiz) {
 			if b.isOppositePlayer(i+vert, j-horiz, player) {
 				if inBounds(i+vert+vert, j-1) && b[i+vert+vert][j-1] == '_' {
-					//Don't double count caputred piece
+					//Simulate capturing the piece
 					tmpMoving := b[i][j]
 					b[i][j] = '_'
 					b[i+vert+vert][j-1] = tmpMoving
 					tmpCapture := b[i+vert][j-horiz]
 					b[i+vert][j-horiz] = '_'
-					combos := b.comboCheck(i+vert+vert, j-1, si, sj, verticalMoves, player)
+
+					//Check if we can continue capturing from here
+					combos := b.captureCheck(i+vert+vert, j-1, si, sj, verticalMoves, player)
+
 					//Restore State
 					b[i+vert][j-horiz] = tmpCapture
 					b[i][j] = tmpMoving
@@ -93,13 +96,16 @@ func (b *Board) comboCheck(i, j, si, sj int, verticalMoves []int, player byte) [
 		if inBounds(i+vert, j+(1-horiz)) {
 			if b.isOppositePlayer(i+vert, j+(1-horiz), player) {
 				if inBounds(i+vert+vert, j+1) && b[i+vert+vert][j+1] == '_' {
-					//Don't double count caputred and moving pieces
+					//Simulate capturing the piece
 					tmpMoving := b[i][j]
 					b[i][j] = '_'
 					b[i+vert+vert][j+1] = tmpMoving
 					tmpCapture := b[i+vert][j+(1-horiz)]
 					b[i+vert][j+(1-horiz)] = '_'
-					combos := b.comboCheck(i+vert+vert, j+1, si, sj, verticalMoves, player)
+
+					//Check if we can continue capturing from here
+					combos := b.captureCheck(i+vert+vert, j+1, si, sj, verticalMoves, player)
+
 					//Restore State
 					b[i+vert][j+(1-horiz)] = tmpCapture
 					b[i][j] = tmpMoving
@@ -177,7 +183,7 @@ func (b Board) getMovesFromPos(i, j int) []Move {
 		verticalMoves = append(verticalMoves, -1)
 	}
 
-	moves := b.comboCheck(i, j, i, j, verticalMoves, b[i][j])
+	moves := b.captureCheck(i, j, i, j, verticalMoves, b[i][j])
 	moves = append(moves, b.checkForAdjacentVacantpots(i, j, verticalMoves)...)
 	return moves
 }
