@@ -1,9 +1,52 @@
 package checkers
 
 import (
+	"fmt"
 	"reflect"
 	"testing"
 )
+
+func testNonTerminalAction(g Game, m Move) error {
+	gameCont, err := g.ApplyAction(m)
+	if err != nil {
+		return fmt.Errorf("Could not apply non-terminal action: %s", err)
+	}
+
+	if gameCont.IsTerminalState() {
+		return fmt.Errorf("Non-terminal action resulted in a terminal state")
+	}
+
+	_, err = gameCont.WinningPlayers()
+	if err == nil {
+		return fmt.Errorf("Non-terminal action resulted in a state with winning players: %s", err)
+	}
+	return nil
+}
+
+func testTerminalAction(g Game, m Move, winner byte) error {
+	gameFinish, err := g.ApplyAction(m)
+	if err != nil {
+		return fmt.Errorf("Could not apply winning capture action: %s", err)
+	}
+
+	if !gameFinish.IsTerminalState() {
+		return fmt.Errorf("Winning capture action did not result in a terminal state")
+	}
+
+	player, err := gameFinish.WinningPlayers()
+	if err != nil {
+		return fmt.Errorf("Winning capture action resulted in an invalid state: %s", err)
+	}
+
+	if player[0] != winner {
+		return fmt.Errorf("Winning capture action did not result in the correct player winning: want '%c', got '%c'",
+			winner,
+			player[0],
+		)
+	}
+
+	return nil
+}
 
 func mappifyMoves(actions []Move) map[Move]bool {
 	actionsCollected := make(map[Move]bool)
@@ -30,6 +73,57 @@ func NewGameCapture() Game {
 	board[3][2] = 'o'
 	board[3][3] = 'o'
 	return Game{Board: board, oTurn: true}
+}
+
+func TestGameCapture(t *testing.T) {
+	game := NewGameCapture()
+	actionsGot := game.GetActions()
+
+	actionsWant := []Move{
+		Move{
+			start:          position{3, 2},
+			end:            position{1, 3},
+			capturedPieces: "2-2",
+		},
+		Move{
+			start:          position{3, 3},
+			end:            position{1, 2},
+			capturedPieces: "2-2",
+		},
+		Move{
+			start: position{3, 2},
+			end:   position{2, 1},
+		},
+		Move{
+			start: position{3, 3},
+			end:   position{2, 3},
+		},
+	}
+
+	if len(actionsGot) != len(actionsWant) {
+		t.Errorf(
+			"Didn't get expected number of actions: got %d, wanted %d",
+			len(actionsGot),
+			len(actionsWant),
+		)
+	}
+
+	if !containSameMoves(actionsGot, actionsWant) {
+		t.Error("Actions collected are not the same as the actions we wanted")
+	}
+
+	//Loop through terminal actions
+	for i := 0; i < 2; i++ {
+		if err := testTerminalAction(game, actionsWant[i], 'o'); err != nil {
+			t.Error(err)
+		}
+	}
+
+	for i := 2; i < len(actionsWant); i++ {
+		if err := testNonTerminalAction(game, actionsWant[i]); err != nil {
+			t.Error(err)
+		}
+	}
 }
 
 func NewGameCombo() Game {
@@ -152,39 +246,13 @@ func TestGetComboActions(t *testing.T) {
 		t.Error("Actions collected are not the same as the actions we wanted")
 	}
 
-	gameFinish, err := game.ApplyAction(actionsWant[0])
-	if err != nil {
-		t.Errorf("Could not apply winning combo action: %s", err)
-	}
-
-	if !gameFinish.IsTerminalState() {
-		t.Errorf("Winning combo action did not result in a terminal state")
-	}
-
-	player, err := gameFinish.WinningPlayers()
-	if err != nil {
-		t.Errorf("Winning combo action resulted in an invalid state: %s", err)
-	}
-
-	if player[0] != 'x' {
-		t.Errorf("Winning combo action did not result in the correct player winning: want 'x', got '%c'",
-			player[0],
-		)
+	if err := testTerminalAction(game, actionsWant[0], 'x'); err != nil {
+		t.Error(err)
 	}
 
 	for i := 1; i < len(actionsWant); i++ {
-		gameCont, err := game.ApplyAction(actionsWant[i])
-		if err != nil {
-			t.Errorf("Could not apply non-terminal action: %s", err)
-		}
-
-		if gameCont.IsTerminalState() {
-			t.Errorf("Non-terminal action resulted in a terminal state")
-		}
-
-		_, err = gameCont.WinningPlayers()
-		if err == nil {
-			t.Errorf("Non-terminal action resulted in a state with winning players: %s", err)
+		if err := testNonTerminalAction(game, actionsWant[i]); err != nil {
+			t.Error(err)
 		}
 	}
 }
