@@ -176,8 +176,58 @@ func NewGameUpgrade() Game {
 			board[i][j] = '_'
 		}
 	}
+	board[ROWS-2][COLS-1] = 'x'
 	board[1][0] = 'o'
 	return Game{board, true}
+}
+
+func TestGameUpgrade(t *testing.T) {
+	game := NewGameUpgrade()
+	oActionGot := game.GetActions()[0]
+
+	oActionWant := Move{
+		start: position{1, 0},
+		end:   position{0, 0},
+	}
+
+	if oActionGot != oActionWant {
+		t.Errorf("Did not get the wanted upgraded 'o' action: got: %s, want: %s",
+			oActionGot,
+			oActionWant,
+		)
+	}
+
+	game2, err := game.ApplyAction(oActionWant)
+	if err != nil {
+		t.Errorf("Could not perform action to upgrade 'o' piece: %s", err)
+	}
+
+	if game2.Board[0][0] != 'O' {
+		t.Errorf("'o' piece did not get upgraded")
+	}
+
+	xActionGot := game2.GetActions()[0]
+
+	xActionWant := Move{
+		start: position{ROWS - 2, COLS - 1},
+		end:   position{ROWS - 1, COLS - 1},
+	}
+
+	if xActionGot != xActionWant {
+		t.Errorf("Did not get the wanted upgraded 'x' action: got: %s, want: %s",
+			xActionGot,
+			xActionWant,
+		)
+	}
+
+	game3, err := game2.ApplyAction(xActionWant)
+	if err != nil {
+		t.Errorf("Could not perform action to upgrade 'x' piece: %s", err)
+	}
+
+	if game3.Board[ROWS-1][COLS-1] != 'X' {
+		t.Errorf("'x' piece did not get upgraded")
+	}
 }
 
 func TestGetComboActions(t *testing.T) {
