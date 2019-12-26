@@ -35,6 +35,47 @@ func (b Board) isOppositePlayer(i, j int, player byte) bool {
 	}
 }
 
+func (b *Board) capturePiece(
+	startI, startJ, fromI, fromJ, pieceI, pieceJ, toI, toJ int,
+	verticalMoves []int, player byte) []Move {
+	var moves []Move = nil
+
+	//Simulate capturing the piece
+	tmpMoving := b[fromI][fromJ]
+	b[fromI][fromJ] = '_'
+	b[toI][toJ] = tmpMoving
+	tmpCapture := b[pieceI][pieceJ]
+	b[pieceI][pieceJ] = '_'
+
+	//Check if we can continue capturing from here
+	combos := b.captureCheck(toI, toJ, startI, startJ, verticalMoves, player)
+
+	//Restore State
+	b[pieceI][pieceJ] = tmpCapture
+	b[fromI][fromJ] = tmpMoving
+	b[toI][toJ] = '_'
+
+	if combos == nil {
+		move := Move{
+			start: position{startI, startJ},
+			end:   position{toI, toJ},
+		}
+		move.addCapturedPiece(
+			position{pieceI, pieceJ},
+		)
+		moves = append(moves, move)
+	} else {
+		for index, _ := range combos {
+			combos[index].addCapturedPiece(
+				position{pieceI, pieceJ},
+			)
+		}
+		moves = append(moves, combos...)
+	}
+
+	return moves
+}
+
 func (b *Board) captureCheck(i, j, si, sj int, verticalMoves []int, player byte) []Move {
 	var moves []Move = nil
 
@@ -57,38 +98,13 @@ func (b *Board) captureCheck(i, j, si, sj int, verticalMoves []int, player byte)
 		if inBounds(i+vert, j-horiz) {
 			if b.isOppositePlayer(i+vert, j-horiz, player) {
 				if inBounds(i+vert+vert, j-1) && b[i+vert+vert][j-1] == '_' {
-					//Simulate capturing the piece
-					tmpMoving := b[i][j]
-					b[i][j] = '_'
-					b[i+vert+vert][j-1] = tmpMoving
-					tmpCapture := b[i+vert][j-horiz]
-					b[i+vert][j-horiz] = '_'
-
-					//Check if we can continue capturing from here
-					combos := b.captureCheck(i+vert+vert, j-1, si, sj, verticalMoves, player)
-
-					//Restore State
-					b[i+vert][j-horiz] = tmpCapture
-					b[i][j] = tmpMoving
-					b[i+vert+vert][j-1] = '_'
-
-					if combos == nil {
-						move := Move{
-							start: position{si, sj},
-							end:   position{i + vert + vert, j - 1},
-						}
-						move.addCapturedPiece(
-							position{i + vert, j - horiz},
-						)
-						moves = append(moves, move)
-					} else {
-						for index, _ := range combos {
-							combos[index].addCapturedPiece(
-								position{i + vert, j - horiz},
-							)
-						}
-						moves = append(moves, combos...)
-					}
+					combos := b.capturePiece(
+						si, sj, i, j,
+						i+vert, j-horiz,
+						i+vert+vert, j-1,
+						verticalMoves, player,
+					)
+					moves = append(moves, combos...)
 				}
 			}
 		}
@@ -96,38 +112,13 @@ func (b *Board) captureCheck(i, j, si, sj int, verticalMoves []int, player byte)
 		if inBounds(i+vert, j+(1-horiz)) {
 			if b.isOppositePlayer(i+vert, j+(1-horiz), player) {
 				if inBounds(i+vert+vert, j+1) && b[i+vert+vert][j+1] == '_' {
-					//Simulate capturing the piece
-					tmpMoving := b[i][j]
-					b[i][j] = '_'
-					b[i+vert+vert][j+1] = tmpMoving
-					tmpCapture := b[i+vert][j+(1-horiz)]
-					b[i+vert][j+(1-horiz)] = '_'
-
-					//Check if we can continue capturing from here
-					combos := b.captureCheck(i+vert+vert, j+1, si, sj, verticalMoves, player)
-
-					//Restore State
-					b[i+vert][j+(1-horiz)] = tmpCapture
-					b[i][j] = tmpMoving
-					b[i+vert+vert][j+1] = '_'
-
-					if combos == nil {
-						move := Move{
-							start: position{si, sj},
-							end:   position{i + vert + vert, j + 1},
-						}
-						move.addCapturedPiece(
-							position{i + vert, j + (1 - horiz)},
-						)
-						moves = append(moves, move)
-					} else {
-						for index, _ := range combos {
-							combos[index].addCapturedPiece(
-								position{i + vert, j + (1 - horiz)},
-							)
-						}
-						moves = append(moves, combos...)
-					}
+					combos := b.capturePiece(
+						si, sj, i, j,
+						i+vert, j+(1-horiz),
+						i+vert+vert, j+1,
+						verticalMoves, player,
+					)
+					moves = append(moves, combos...)
 				}
 			}
 		}
