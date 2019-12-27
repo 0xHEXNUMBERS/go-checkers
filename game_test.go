@@ -126,49 +126,6 @@ func TestGameCapture(t *testing.T) {
 	}
 }
 
-func NewGameCombo() Game {
-	var board Board
-	for i := 0; i < ROWS; i++ {
-		for j := 0; j < COLS; j++ {
-			board[i][j] = '_'
-		}
-	}
-	board[2][2] = 'X'
-	board[3][1] = 'o'
-	board[3][2] = 'o'
-	board[1][1] = 'o'
-	board[1][2] = 'o'
-	return Game{Board: board}
-}
-
-func NewGameCombo2() Game {
-	var board Board
-	for i := 0; i < ROWS; i++ {
-		for j := 0; j < COLS; j++ {
-			board[i][j] = '_'
-		}
-	}
-	board[0][0] = 'x'
-	board[1][1] = 'o'
-	board[3][2] = 'o'
-	board[5][2] = 'o'
-	return Game{Board: board}
-}
-
-func NewGameCombo3() Game {
-	var board Board
-	for i := 0; i < ROWS; i++ {
-		for j := 0; j < COLS; j++ {
-			board[i][j] = '_'
-		}
-	}
-	board[0][3] = 'x'
-	board[1][3] = 'o'
-	board[3][2] = 'o'
-	board[5][2] = 'o'
-	return Game{Board: board}
-}
-
 func NewGameUpgrade() Game {
 	var board Board
 	for i := 0; i < ROWS; i++ {
@@ -230,7 +187,22 @@ func TestGameUpgrade(t *testing.T) {
 	}
 }
 
-func TestGetComboActions(t *testing.T) {
+func NewGameCombo() Game {
+	var board Board
+	for i := 0; i < ROWS; i++ {
+		for j := 0; j < COLS; j++ {
+			board[i][j] = '_'
+		}
+	}
+	board[2][2] = 'X'
+	board[3][1] = 'o'
+	board[3][2] = 'o'
+	board[1][1] = 'o'
+	board[1][2] = 'o'
+	return Game{Board: board}
+}
+
+func TestGameCombo(t *testing.T) {
 	game := NewGameCombo()
 	actionsGot := game.GetActions()
 
