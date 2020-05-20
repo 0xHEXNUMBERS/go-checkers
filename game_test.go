@@ -63,16 +63,16 @@ func containSameMoves(a, b []Move) bool {
 }
 
 func NewGameCapture() Game {
-	var board Board
+	var b board
 	for i := 0; i < ROWS; i++ {
 		for j := 0; j < COLS; j++ {
-			board[i][j] = '_'
+			b[i][j] = '_'
 		}
 	}
-	board[2][2] = 'X'
-	board[3][2] = 'o'
-	board[3][3] = 'o'
-	return Game{Board: board, oTurn: true}
+	b[2][2] = 'X'
+	b[3][2] = 'o'
+	b[3][3] = 'o'
+	return Game{board: b, oTurn: true}
 }
 
 func TestGameCapture(t *testing.T) {
@@ -127,15 +127,15 @@ func TestGameCapture(t *testing.T) {
 }
 
 func NewGameUpgrade() Game {
-	var board Board
+	var b board
 	for i := 0; i < ROWS; i++ {
 		for j := 0; j < COLS; j++ {
-			board[i][j] = '_'
+			b[i][j] = '_'
 		}
 	}
-	board[ROWS-2][COLS-1] = 'x'
-	board[1][0] = 'o'
-	return Game{board, true}
+	b[ROWS-2][COLS-1] = 'x'
+	b[1][0] = 'o'
+	return Game{b, true}
 }
 
 func TestGameUpgrade(t *testing.T) {
@@ -159,7 +159,7 @@ func TestGameUpgrade(t *testing.T) {
 		t.Errorf("Could not perform action to upgrade 'o' piece: %s", err)
 	}
 
-	if game2.Board[0][0] != 'O' {
+	if game2.board[0][0] != 'O' {
 		t.Errorf("'o' piece did not get upgraded")
 	}
 
@@ -182,24 +182,24 @@ func TestGameUpgrade(t *testing.T) {
 		t.Errorf("Could not perform action to upgrade 'x' piece: %s", err)
 	}
 
-	if game3.Board[ROWS-1][COLS-1] != 'X' {
+	if game3.board[ROWS-1][COLS-1] != 'X' {
 		t.Errorf("'x' piece did not get upgraded")
 	}
 }
 
 func NewGameCombo() Game {
-	var board Board
+	var b board
 	for i := 0; i < ROWS; i++ {
 		for j := 0; j < COLS; j++ {
-			board[i][j] = '_'
+			b[i][j] = '_'
 		}
 	}
-	board[2][2] = 'X'
-	board[3][1] = 'o'
-	board[3][2] = 'o'
-	board[1][1] = 'o'
-	board[1][2] = 'o'
-	return Game{Board: board}
+	b[2][2] = 'X'
+	b[3][1] = 'o'
+	b[3][2] = 'o'
+	b[1][1] = 'o'
+	b[1][2] = 'o'
+	return Game{board: b}
 }
 
 func TestGameCombo(t *testing.T) {

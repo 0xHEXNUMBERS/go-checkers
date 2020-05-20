@@ -15,10 +15,9 @@ const (
 	COLS = 4
 )
 
-//Board is a representation of the board state
-type Board [ROWS][COLS]byte
+type board [ROWS][COLS]byte
 
-func (b Board) String() string {
+func (b board) String() string {
 	str := ""
 	for i := 0; i < ROWS; i++ {
 		str += "["
@@ -34,7 +33,7 @@ func (b Board) String() string {
 	return str
 }
 
-func (b Board) isOppositePlayer(p position, player byte) bool {
+func (b board) isOppositePlayer(p position, player byte) bool {
 	i, j := p.i, p.j
 	if player == 'x' || player == 'X' {
 		return b[i][j] == 'o' || b[i][j] == 'O'
@@ -42,7 +41,7 @@ func (b Board) isOppositePlayer(p position, player byte) bool {
 	return b[i][j] == 'x' || b[i][j] == 'X'
 }
 
-func (b *Board) capturePiece(
+func (b *board) capturePiece(
 	start, from, piece, to position,
 	verticalMoves []int, player byte) []Move {
 
@@ -86,7 +85,7 @@ func (b *Board) capturePiece(
 	return moves
 }
 
-func (b Board) isVacant(p position) bool {
+func (b board) isVacant(p position) bool {
 	if !inBounds(p.i, p.j) {
 		return false
 	}
@@ -94,7 +93,7 @@ func (b Board) isVacant(p position) bool {
 	return b[p.i][p.j] == '_'
 }
 
-func (b *Board) captureCheck(start, to position,
+func (b *board) captureCheck(start, to position,
 	verticalMoves []int, player byte) []Move {
 	var moves []Move = nil
 
@@ -150,7 +149,7 @@ func (b *Board) captureCheck(start, to position,
 	return moves
 }
 
-func (b Board) checkForAdjacentVacantSpots(p position, verticalMoves []int) []Move {
+func (b board) checkForAdjacentVacantSpots(p position, verticalMoves []int) []Move {
 	i, j := p.i, p.j
 	var moves []Move = nil
 
@@ -183,7 +182,7 @@ func (b Board) checkForAdjacentVacantSpots(p position, verticalMoves []int) []Mo
 	return moves
 }
 
-func (b Board) getMovesFromPos(p position) []Move {
+func (b board) getMovesFromPos(p position) []Move {
 	i, j := p.i, p.j
 	verticalMoves := make([]int, 0)
 

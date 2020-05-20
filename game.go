@@ -15,29 +15,29 @@ var (
 
 //Game is the base struct that holds game state information
 type Game struct {
-	Board
+	board
 	oTurn bool
 }
 
 //NewGame returns a new valid game of checkers
 func NewGame() Game {
-	var board Board
+	var b board
 	for i := 0; i < ROWS; i++ {
 		for j := 0; j < COLS; j++ {
-			board[i][j] = '_'
+			b[i][j] = '_'
 		}
 	}
 	for i := 0; i < (ROWS/2)-1; i++ {
 		for j := 0; j < COLS; j++ {
-			board[i][j] = 'x'
+			b[i][j] = 'x'
 		}
 	}
 	for i := (ROWS / 2) + 1; i < ROWS; i++ {
 		for j := 0; j < COLS; j++ {
-			board[i][j] = 'o'
+			b[i][j] = 'o'
 		}
 	}
-	return Game{Board: board}
+	return Game{board: b}
 }
 
 //GetActions returns a list of moves that can be made
@@ -46,11 +46,11 @@ func (g Game) GetActions() []Move {
 	var moves []Move = nil
 	for i := 0; i < ROWS; i++ {
 		for j := 0; j < COLS; j++ {
-			if g.Board[i][j] == '_' {
+			if g.board[i][j] == '_' {
 				continue
 			}
-			if g.oTurn && (g.Board[i][j] == 'x' || g.Board[i][j] == 'X') ||
-				!g.oTurn && (g.Board[i][j] == 'o' || g.Board[i][j] == 'O') {
+			if g.oTurn && (g.board[i][j] == 'x' || g.board[i][j] == 'X') ||
+				!g.oTurn && (g.board[i][j] == 'o' || g.board[i][j] == 'O') {
 				continue
 			}
 			moves = append(moves, g.getMovesFromPos(position{i, j})...)
@@ -85,20 +85,20 @@ func (g Game) ApplyAction(m Move) (Game, error) {
 
 	//Move starting piece
 	if m.end.i != m.start.i || m.end.j != m.start.j {
-		g.Board[m.end.i][m.end.j] = g.Board[m.start.i][m.start.j]
-		g.Board[m.start.i][m.start.j] = '_'
+		g.board[m.end.i][m.end.j] = g.board[m.start.i][m.start.j]
+		g.board[m.start.i][m.start.j] = '_'
 	}
 
 	removePieces := m.getCapturedPieces()
 	for _, p := range removePieces {
-		g.Board[p.i][p.j] = '_'
+		g.board[p.i][p.j] = '_'
 	}
 
 	//Upgrade
-	if m.end.i == ROWS-1 && g.Board[m.end.i][m.end.j] == 'x' {
-		g.Board[m.end.i][m.end.j] = 'X'
-	} else if m.end.i == 0 && g.Board[m.end.i][m.end.j] == 'o' {
-		g.Board[m.end.i][m.end.j] = 'O'
+	if m.end.i == ROWS-1 && g.board[m.end.i][m.end.j] == 'x' {
+		g.board[m.end.i][m.end.j] = 'X'
+	} else if m.end.i == 0 && g.board[m.end.i][m.end.j] == 'o' {
+		g.board[m.end.i][m.end.j] = 'O'
 	}
 
 	//Switch turns
@@ -117,11 +117,11 @@ func (g Game) IsTerminalState() bool {
 
 	for i := 0; i < ROWS; i++ {
 		for j := 0; j < COLS; j++ {
-			if g.Board[i][j] == '_' {
+			if g.board[i][j] == '_' {
 				continue
 			}
 
-			if g.Board[i][j] == 'o' || g.Board[i][j] == 'O' {
+			if g.board[i][j] == 'o' || g.board[i][j] == 'O' {
 				oCount++
 			} else {
 				xCount++
@@ -150,11 +150,11 @@ func (g Game) Winner() (byte, error) {
 	//and search for the winner
 	for i := 0; i < ROWS; i++ {
 		for j := 0; j < COLS; j++ {
-			if g.Board[i][j] == '_' {
+			if g.board[i][j] == '_' {
 				continue
 			}
 
-			if g.Board[i][j] == 'o' || g.Board[i][j] == 'O' {
+			if g.board[i][j] == 'o' || g.board[i][j] == 'O' {
 				return 'o', nil
 			}
 			return 'x', nil
