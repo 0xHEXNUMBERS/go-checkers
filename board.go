@@ -5,10 +5,17 @@ import (
 )
 
 const (
+	//ROWS is the number of rows in a checkers board
 	ROWS = 8
+
+	//COLS is the number of cols in a checkers board
+	//this variable is represented as half the amount of the columns
+	//on a typical checkers board as half of the slots on the board are
+	//unused. This implementation takes use of that to save on memory
 	COLS = 4
 )
 
+//Board is a representation of the board state
 type Board [ROWS][COLS]byte
 
 func (b Board) String() string {
