@@ -44,7 +44,7 @@ func (g Game) GetActions() []Move {
 				!g.oTurn && (g.Board[i][j] == 'o' || g.Board[i][j] == 'O') {
 				continue
 			}
-			moves = append(moves, g.getMovesFromPos(i, j)...)
+			moves = append(moves, g.getMovesFromPos(position{i, j})...)
 		}
 	}
 
@@ -71,21 +71,21 @@ func (g Game) ApplyAction(m Move) (Game, error) {
 	}
 
 	//Move starting piece
-	if m.end.y != m.start.y || m.end.x != m.start.x {
-		g.Board[m.end.y][m.end.x] = g.Board[m.start.y][m.start.x]
-		g.Board[m.start.y][m.start.x] = '_'
+	if m.end.i != m.start.i || m.end.j != m.start.j {
+		g.Board[m.end.i][m.end.j] = g.Board[m.start.i][m.start.j]
+		g.Board[m.start.i][m.start.j] = '_'
 	}
 
 	removePieces := m.getCapturedPieces()
 	for _, p := range removePieces {
-		g.Board[p.y][p.x] = '_'
+		g.Board[p.i][p.j] = '_'
 	}
 
 	//Upgrade
-	if m.end.y == ROWS-1 && g.Board[m.end.y][m.end.x] == 'x' {
-		g.Board[m.end.y][m.end.x] = 'X'
-	} else if m.end.y == 0 && g.Board[m.end.y][m.end.x] == 'o' {
-		g.Board[m.end.y][m.end.x] = 'O'
+	if m.end.i == ROWS-1 && g.Board[m.end.i][m.end.j] == 'x' {
+		g.Board[m.end.i][m.end.j] = 'X'
+	} else if m.end.i == 0 && g.Board[m.end.i][m.end.j] == 'o' {
+		g.Board[m.end.i][m.end.j] = 'O'
 	}
 
 	//Switch turns
@@ -122,9 +122,9 @@ func (g Game) IsTerminalState() bool {
 	return true
 }
 
-func (g Game) WinningPlayers() ([]byte, error) {
+func (g Game) Winner() (byte, error) {
 	if !g.IsTerminalState() {
-		return nil, ERR_GAME_NOT_OVER
+		return '_', ERR_GAME_NOT_OVER
 	}
 
 	for i := 0; i < ROWS; i++ {
@@ -134,11 +134,11 @@ func (g Game) WinningPlayers() ([]byte, error) {
 			}
 
 			if g.Board[i][j] == 'o' || g.Board[i][j] == 'O' {
-				return []byte{'o'}, nil
+				return 'o', nil
 			} else {
-				return []byte{'x'}, nil
+				return 'x', nil
 			}
 		}
 	}
-	return nil, ERR_INVALID_GAME_STATE
+	return '_', ERR_INVALID_GAME_STATE
 }

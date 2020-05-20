@@ -7,15 +7,15 @@ import (
 )
 
 type position struct {
-	y, x int
+	i, j int
 }
 
 func (p position) String() string {
-	return fmt.Sprintf("%d-%d", p.y, p.x)
+	return fmt.Sprintf("%d-%d", p.i, p.j)
 }
 
 func (p position) inBounds() bool {
-	return inBounds(p.y, p.x)
+	return inBounds(p.i, p.j)
 }
 
 type Move struct {

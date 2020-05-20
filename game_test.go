@@ -16,7 +16,7 @@ func testNonTerminalAction(g Game, m Move) error {
 		return fmt.Errorf("Non-terminal action resulted in a terminal state")
 	}
 
-	_, err = gameCont.WinningPlayers()
+	_, err = gameCont.Winner()
 	if err == nil {
 		return fmt.Errorf("Non-terminal action resulted in a state with winning players: %s", err)
 	}
@@ -33,15 +33,15 @@ func testTerminalAction(g Game, m Move, winner byte) error {
 		return fmt.Errorf("Winning capture action did not result in a terminal state")
 	}
 
-	player, err := gameFinish.WinningPlayers()
+	player, err := gameFinish.Winner()
 	if err != nil {
 		return fmt.Errorf("Winning capture action resulted in an invalid state: %s", err)
 	}
 
-	if player[0] != winner {
+	if player != winner {
 		return fmt.Errorf("Winning capture action did not result in the correct player winning: want '%c', got '%c'",
 			winner,
-			player[0],
+			player,
 		)
 	}
 
