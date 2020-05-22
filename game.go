@@ -13,13 +13,13 @@ var (
 	ErrMoveNotInBounds = errors.New("Move is not in bounds")
 )
 
-//Game is the base struct that holds game state information
+//Game is the base struct that holds game state information.
 type Game struct {
 	board
 	oTurn bool
 }
 
-//NewGame returns a new valid game of checkers
+//NewGame returns a new valid game of checkers.
 func NewGame() Game {
 	var b board
 	for i := 0; i < ROWS; i++ {
@@ -41,7 +41,7 @@ func NewGame() Game {
 }
 
 //GetActions returns a list of moves that can be made
-//by the current player
+//by the current player.
 func (g Game) GetActions() []Move {
 	var moves []Move = nil
 	for i := 0; i < ROWS; i++ {
@@ -77,7 +77,7 @@ func (g Game) GetActions() []Move {
 //ApplyAction takes a Move and applies the action to the current game state.
 //
 //Returns the new game state and ErrMoveNotInBounds
-//if the Move m is invalid
+//if the Move m is invalid.
 func (g Game) ApplyAction(m Move) (Game, error) {
 	if !m.inBounds() {
 		return Game{}, ErrMoveNotInBounds
@@ -107,7 +107,7 @@ func (g Game) ApplyAction(m Move) (Game, error) {
 	return g, nil
 }
 
-//IsTerminalState returns whether the game is finished or not
+//IsTerminalState returns whether the game is finished or not.
 func (g Game) IsTerminalState() bool {
 	//Count the number of o's and x's on the field
 	//If there are at least 1 of each, the game isn't
@@ -140,7 +140,7 @@ func (g Game) IsTerminalState() bool {
 //
 //Returns ErrGameNotOver if the game is not over.
 //
-//Returns ErrInvalidGameState if the game is in an invalid game state
+//Returns ErrInvalidGameState if the game is in an invalid game state.
 func (g Game) Winner() (byte, error) {
 	if !g.IsTerminalState() {
 		return '_', ErrGameNotOver
@@ -161,4 +161,16 @@ func (g Game) Winner() (byte, error) {
 		}
 	}
 	return '_', ErrInvalidGameState
+}
+
+//Player returns the ascii value of the player
+//that is currently deciding a move.
+//
+//Player returns 'o' if player o is making a move.
+//Otherwise, Player return 'x'.
+func (g Game) Player() byte {
+	if g.oTurn {
+		return 'o'
+	}
+	return 'x'
 }
