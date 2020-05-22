@@ -99,7 +99,7 @@ func (b *board) captureCheck(start, to position,
 
 	if to != start {
 		moves = []Move{
-			Move{
+			{
 				start: start,
 				end:   to,
 			},
