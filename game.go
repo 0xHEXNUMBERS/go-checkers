@@ -107,14 +107,7 @@ func (g Game) ApplyAction(m Move) (Game, error) {
 	return g, nil
 }
 
-//IsTerminalState returns whether the game is finished or not.
-func (g Game) IsTerminalState() bool {
-	//Count the number of o's and x's on the field
-	//If there are at least 1 of each, the game isn't
-	//finished yet. Otherwise, the game is over
-	var oCount int
-	var xCount int
-
+func (g Game) pieceCounts() (xCount, oCount int) {
 	for i := 0; i < ROWS; i++ {
 		for j := 0; j < COLS; j++ {
 			if g.board[i][j] == '_' {
@@ -126,14 +119,24 @@ func (g Game) IsTerminalState() bool {
 			} else {
 				xCount++
 			}
-
-			if oCount > 0 && xCount > 0 {
-				return false
-			}
 		}
 	}
+	return
+}
 
-	return true
+//IsTerminalState returns whether the game is finished or not.
+func (g Game) IsTerminalState() bool {
+	//Count the number of o's and x's on the field
+	//If there are at least 1 of each, the game might not
+	//be finished yet. Otherwise, the game is over.
+	xCount, oCount := g.pieceCounts()
+	if xCount == 0 || oCount == 0 {
+		return true
+	}
+
+	//Can the current player make a move?
+	//If not, the other player wins.
+	return len(g.GetActions()) == 0
 }
 
 //Winner returns the winner's ascii value.
@@ -146,20 +149,21 @@ func (g Game) Winner() (byte, error) {
 		return '_', ErrGameNotOver
 	}
 
-	//Loop through the entire game board
-	//and search for the winner
-	for i := 0; i < ROWS; i++ {
-		for j := 0; j < COLS; j++ {
-			if g.board[i][j] == '_' {
-				continue
-			}
-
-			if g.board[i][j] == 'o' || g.board[i][j] == 'O' {
-				return 'o', nil
-			}
-			return 'x', nil
-		}
+	xCount, oCount := g.pieceCounts()
+	if xCount == 0 {
+		return 'o', nil
+	} else if oCount == 0 {
+		return 'x', nil
 	}
+
+	//If the current player cannot move, then they lost
+	if len(g.GetActions()) == 0 {
+		if g.oTurn {
+			return 'o', nil
+		}
+		return 'x', nil
+	}
+
 	return '_', ErrInvalidGameState
 }
 
