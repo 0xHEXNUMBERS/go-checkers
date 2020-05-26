@@ -135,7 +135,7 @@ func NewGameUpgrade() Game {
 	}
 	b[ROWS-2][COLS-1] = 'x'
 	b[1][0] = 'o'
-	return Game{b, true}
+	return Game{board: b, oTurn: true}
 }
 
 func TestGameUpgrade(t *testing.T) {

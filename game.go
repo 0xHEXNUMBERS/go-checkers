@@ -4,6 +4,13 @@ import (
 	"errors"
 )
 
+const (
+	//TurnsBeforeDraw is the number of turns the engine
+	//wil consider before resulting in a draw if a piece
+	//capture has not occurred in that alloted time.
+	TurnsBeforeDraw = 40
+)
+
 var (
 	//ErrGameNotOver error
 	ErrGameNotOver = errors.New("Game is not finished")
@@ -18,7 +25,8 @@ var (
 //Game is the base struct that holds game state information.
 type Game struct {
 	board
-	oTurn bool
+	oTurn     bool
+	turnTimer int
 }
 
 //NewGame returns a new valid game of checkers.
@@ -45,6 +53,10 @@ func NewGame() Game {
 //GetActions returns a list of moves that can be made
 //by the current player.
 func (g Game) GetActions() []Move {
+	if g.turnTimer == TurnsBeforeDraw {
+		return nil
+	}
+
 	var moves []Move = make([]Move, 0)
 	for i := 0; i < ROWS; i++ {
 		for j := 0; j < COLS; j++ {
@@ -89,8 +101,10 @@ func (g Game) ApplyAction(m Move) (Game, error) {
 		g.board[m.start.i][m.start.j] = '_'
 	}
 
+	g.turnTimer++
 	removePieces := m.getCapturedPieces()
 	for _, p := range removePieces {
+		g.turnTimer = 0
 		g.board[p.i][p.j] = '_'
 	}
 
@@ -145,6 +159,10 @@ func (g Game) canMove() bool {
 
 //IsTerminalState returns whether the game is finished or not.
 func (g Game) IsTerminalState() bool {
+	if g.turnTimer == TurnsBeforeDraw {
+		return true
+	}
+
 	//Count the number of o's and x's on the field
 	//If there are at least 1 of each, the game might not
 	//be finished yet. Otherwise, the game is over.
@@ -160,12 +178,19 @@ func (g Game) IsTerminalState() bool {
 
 //Winner returns the winner's ascii value.
 //
+//If the game results in a draw, this method returns '_' as the winner.
+//
 //Returns ErrGameNotOver if the game is not over.
 //
 //Returns ErrInvalidGameState if the game is in an invalid game state.
 func (g Game) Winner() (byte, error) {
 	if !g.IsTerminalState() {
 		return '_', ErrGameNotOver
+	}
+
+	//Draw
+	if g.turnTimer == TurnsBeforeDraw {
+		return '_', nil
 	}
 
 	xCount, oCount := g.pieceCounts()
