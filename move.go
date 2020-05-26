@@ -59,10 +59,11 @@ func (m Move) getCapturedPieces() (pieces []position) {
 		return
 	}
 
-	for _, s := range serializedPieces {
+	pieces = make([]position, len(serializedPieces))
+	for i, s := range serializedPieces {
 		var y, x int
 		fmt.Sscanf(s, "%d-%d", &y, &x)
-		pieces = append(pieces, position{y, x})
+		pieces[i] = position{y, x}
 	}
 	return
 }

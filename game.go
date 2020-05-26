@@ -1,6 +1,8 @@
 package checkers
 
-import "errors"
+import (
+	"errors"
+)
 
 var (
 	//ErrGameNotOver error
@@ -43,7 +45,7 @@ func NewGame() Game {
 //GetActions returns a list of moves that can be made
 //by the current player.
 func (g Game) GetActions() []Move {
-	var moves []Move = nil
+	var moves []Move = make([]Move, 0)
 	for i := 0; i < ROWS; i++ {
 		for j := 0; j < COLS; j++ {
 			if g.board[i][j] == '_' {
@@ -59,7 +61,7 @@ func (g Game) GetActions() []Move {
 
 	//Weed out actions that lead to the same result
 	uniqueActions := make(map[Game]bool)
-	var ret []Move = nil
+	var ret []Move = make([]Move, 0, len(moves))
 
 	for _, m := range moves {
 		//Here, ApplyAction() can't error out
