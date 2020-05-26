@@ -124,6 +124,25 @@ func (g Game) pieceCounts() (xCount, oCount int) {
 	return
 }
 
+func (g Game) canMove() bool {
+	for i := 0; i < ROWS; i++ {
+		for j := 0; j < COLS; j++ {
+			if g.board[i][j] == '_' {
+				continue
+			}
+			if g.oTurn && (g.board[i][j] == 'x' || g.board[i][j] == 'X') ||
+				!g.oTurn && (g.board[i][j] == 'o' || g.board[i][j] == 'O') {
+				continue
+			}
+
+			if g.canMoveFromPos(position{i, j}) {
+				return true
+			}
+		}
+	}
+	return false
+}
+
 //IsTerminalState returns whether the game is finished or not.
 func (g Game) IsTerminalState() bool {
 	//Count the number of o's and x's on the field
@@ -136,7 +155,7 @@ func (g Game) IsTerminalState() bool {
 
 	//Can the current player make a move?
 	//If not, the other player wins.
-	return len(g.GetActions()) == 0
+	return !g.canMove()
 }
 
 //Winner returns the winner's ascii value.

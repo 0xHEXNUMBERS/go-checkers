@@ -34,6 +34,10 @@ func (b board) String() string {
 }
 
 func (b board) isOppositePlayer(p position, player byte) bool {
+	if !p.inBounds() {
+		return false
+	}
+
 	i, j := p.i, p.j
 	if player == 'x' || player == 'X' {
 		return b[i][j] == 'o' || b[i][j] == 'O'
@@ -116,33 +120,29 @@ func (b *board) captureCheck(start, to position,
 	for _, vert := range verticalMoves {
 		//Moving left
 		left := position{i1 + vert, j1 - horiz}
-		if left.inBounds() {
-			if b.isOppositePlayer(left, player) {
-				posAfterMove := position{i1 + vert + vert, j1 - 1}
-				if posAfterMove.inBounds() && b.isVacant(posAfterMove) {
-					b.capturePiece(
-						start, to,
-						left, posAfterMove,
-						verticalMoves, player,
-						movesSoFar,
-					)
-				}
+		if b.isOppositePlayer(left, player) {
+			posAfterMove := position{i1 + vert + vert, j1 - 1}
+			if b.isVacant(posAfterMove) {
+				b.capturePiece(
+					start, to,
+					left, posAfterMove,
+					verticalMoves, player,
+					movesSoFar,
+				)
 			}
 		}
 
 		//Moving right
 		right := position{i1 + vert, j1 + (1 - horiz)}
-		if right.inBounds() {
-			if b.isOppositePlayer(right, player) {
-				posAfterMove := position{i1 + vert + vert, j1 + 1}
-				if posAfterMove.inBounds() && b.isVacant(posAfterMove) {
-					b.capturePiece(
-						start, to,
-						right, posAfterMove,
-						verticalMoves, player,
-						movesSoFar,
-					)
-				}
+		if b.isOppositePlayer(right, player) {
+			posAfterMove := position{i1 + vert + vert, j1 + 1}
+			if b.isVacant(posAfterMove) {
+				b.capturePiece(
+					start, to,
+					right, posAfterMove,
+					verticalMoves, player,
+					movesSoFar,
+				)
 			}
 		}
 	}
@@ -179,7 +179,7 @@ func (b board) checkForAdjacentVacantSpots(p position, verticalMoves []int, move
 	}
 }
 
-func (b board) getMovesFromPos(p position) []Move {
+func (b board) getVertMovesFromPos(p position) []int {
 	i, j := p.i, p.j
 	var verticalMoves []int
 
@@ -190,14 +190,53 @@ func (b board) getMovesFromPos(p position) []Move {
 	} else if b[i][j] == 'o' {
 		verticalMoves = []int{-1}
 	}
+	return verticalMoves
+}
+
+func (b board) canMoveFromPos(p position) bool {
+	i, j := p.i, p.j
+
+	horiz := 1
+	if rowParity(i) {
+		horiz = 0
+	}
+
+	for _, vert := range b.getVertMovesFromPos(p) {
+		left := position{i + vert, j - horiz}
+		if b.isVacant(left) {
+			return true
+		} else if b.isOppositePlayer(left, b[i][j]) {
+			posAfterMove := position{i + vert + vert, j - 1}
+			if b.isVacant(posAfterMove) {
+				return true
+			}
+		}
+
+		right := position{i + vert, j + (1 - horiz)}
+		if b.isVacant(right) {
+			return true
+		} else if b.isOppositePlayer(right, b[i][j]) {
+			posAfterMove := position{i + vert + vert, j + 1}
+			if b.isVacant(posAfterMove) {
+				return true
+			}
+		}
+	}
+
+	return false
+}
+
+func (b board) getMovesFromPos(p position) []Move {
+	i, j := p.i, p.j
+	var verticalMoves []int = b.getVertMovesFromPos(p)
 
 	var moves []Move = make([]Move, 0)
 	b.captureCheck(
-		position{i, j}, position{i, j},
+		p, p,
 		verticalMoves, b[i][j], &moves,
 	)
 	b.checkForAdjacentVacantSpots(
-		position{i, j}, verticalMoves, &moves,
+		p, verticalMoves, &moves,
 	)
 	return moves
 }
