@@ -59,17 +59,15 @@ func (g Game) GetActions() []Move {
 		}
 	}
 
-	//Weed out actions that lead to the same result
-	uniqueActions := make(map[Game]bool)
+	//Weed out duplicate actions
+	uniqueActions := make(map[Move]bool)
 	var ret []Move = make([]Move, 0, len(moves))
 
 	for _, m := range moves {
-		//Here, ApplyAction() can't error out
-		newGameState, _ := g.ApplyAction(m)
-		_, ok := uniqueActions[newGameState]
+		_, ok := uniqueActions[m]
 		if !ok {
 			ret = append(ret, m)
-			uniqueActions[newGameState] = true
+			uniqueActions[m] = true
 		}
 	}
 
