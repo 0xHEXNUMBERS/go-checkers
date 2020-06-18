@@ -72,7 +72,12 @@ func NewGameCapture() Game {
 	b[2][2] = 'X'
 	b[3][2] = 'o'
 	b[3][3] = 'o'
-	return Game{board: b, oTurn: true}
+	return Game{
+		board:     b,
+		combo:     position{-1, -1},
+		turnTimer: 0,
+		oTurn:     true,
+	}
 }
 
 func TestGameCapture(t *testing.T) {
@@ -81,22 +86,14 @@ func TestGameCapture(t *testing.T) {
 
 	actionsWant := []Move{
 		{
-			start:          position{3, 2},
-			end:            position{1, 3},
-			capturedPieces: "2-2",
+			start:         position{3, 2},
+			end:           position{1, 3},
+			capturedPiece: position{2, 2},
 		},
 		{
-			start:          position{3, 3},
-			end:            position{1, 2},
-			capturedPieces: "2-2",
-		},
-		{
-			start: position{3, 2},
-			end:   position{2, 1},
-		},
-		{
-			start: position{3, 3},
-			end:   position{2, 3},
+			start:         position{3, 3},
+			end:           position{1, 2},
+			capturedPiece: position{2, 2},
 		},
 	}
 
@@ -135,7 +132,12 @@ func NewGameUpgrade() Game {
 	}
 	b[ROWS-2][COLS-1] = 'x'
 	b[1][0] = 'o'
-	return Game{board: b, oTurn: true}
+	return Game{
+		board:     b,
+		combo:     position{-1, -1},
+		turnTimer: 0,
+		oTurn:     true,
+	}
 }
 
 func TestGameUpgrade(t *testing.T) {
@@ -199,82 +201,28 @@ func NewGameCombo() Game {
 	b[3][2] = 'o'
 	b[1][1] = 'o'
 	b[1][2] = 'o'
-	return Game{board: b}
+	return Game{
+		board:     b,
+		combo:     position{-1, -1},
+		turnTimer: 0,
+		oTurn:     false,
+	}
 }
 
 func TestGameCombo(t *testing.T) {
 	game := NewGameCombo()
-	actionsGot := game.GetActions()
+	game, _ = game.ApplyAction(Move{
+		start:         position{2, 2},
+		end:           position{4, 1},
+		capturedPiece: position{3, 2},
+	})
+	game, _ = game.ApplyAction(game.GetActions()[0])
+	game, _ = game.ApplyAction(game.GetActions()[0])
 
-	startPos := position{2, 2}
-
-	actionsWant := []Move{
-		{
-			start:          startPos,
-			end:            position{2, 2},
-			capturedPieces: "1-1|1-2|3-1|3-2",
-		},
-		{
-			start:          startPos,
-			end:            position{4, 1},
-			capturedPieces: "3-2",
-		},
-		{
-			start:          startPos,
-			end:            position{2, 0},
-			capturedPieces: "3-1|3-2",
-		},
-		{
-			start:          startPos,
-			end:            position{0, 1},
-			capturedPieces: "1-1|3-1|3-2",
-		},
-		{
-			start:          startPos,
-			end:            position{0, 1},
-			capturedPieces: "1-2",
-		},
-		{
-			start:          startPos,
-			end:            position{2, 0},
-			capturedPieces: "1-1|1-2",
-		},
-		{
-			start:          startPos,
-			end:            position{4, 1},
-			capturedPieces: "1-1|1-2|3-1",
-		},
-		{
-			start:          startPos,
-			end:            position{3, 3},
-			capturedPieces: "",
-		},
-		{
-			start:          startPos,
-			end:            position{1, 3},
-			capturedPieces: "",
-		},
-	}
-
-	if len(actionsGot) != len(actionsWant) {
-		t.Errorf(
-			"Didn't get expected number of actions: got %d, wanted %d",
-			len(actionsGot),
-			len(actionsWant),
-		)
-	}
-
-	if !containSameMoves(actionsGot, actionsWant) {
-		t.Error("Actions collected are not the same as the actions we wanted")
-	}
-
-	if err := testTerminalAction(game, actionsWant[0], 'x'); err != nil {
+	//At this point, there should only be 1 piece left, and this
+	//last action will continue the combo started at the beginning
+	//of this test to remove this last piece.
+	if err := testTerminalAction(game, game.GetActions()[0], 'x'); err != nil {
 		t.Error(err)
-	}
-
-	for i := 1; i < len(actionsWant); i++ {
-		if err := testNonTerminalAction(game, actionsWant[i]); err != nil {
-			t.Error(err)
-		}
 	}
 }

@@ -8,7 +8,7 @@ const (
 	//TurnsBeforeDraw is the number of turns the engine
 	//wil consider before resulting in a draw if a piece
 	//capture has not occurred in that alloted time.
-	TurnsBeforeDraw = 40
+	TurnsBeforeDraw = 100
 )
 
 var (
@@ -25,8 +25,9 @@ var (
 //Game is the base struct that holds game state information.
 type Game struct {
 	board
-	oTurn     bool
+	combo     position
 	turnTimer int
+	oTurn     bool
 }
 
 //NewGame returns a new valid game of checkers.
@@ -47,7 +48,17 @@ func NewGame() Game {
 			b[i][j] = 'o'
 		}
 	}
-	return Game{board: b}
+	return Game{
+		board:     b,
+		combo:     position{-1, -1},
+		turnTimer: 0,
+		oTurn:     false,
+	}
+}
+
+func (g *Game) deferAction() {
+	g.turnTimer++
+	g.oTurn = !g.oTurn
 }
 
 //GetActions returns a list of moves that can be made
@@ -57,7 +68,20 @@ func (g Game) GetActions() []Move {
 		return nil
 	}
 
-	var moves []Move = make([]Move, 0)
+	//If we're continuing a combo, only return capture
+	//action from this position
+	captures := make([]Move, 0)
+	if g.combo.inBounds() {
+		g.captureCheck(
+			g.combo,
+			g.getVertMovesFromPos(g.combo),
+			g.board[g.combo.i][g.combo.j],
+			&captures,
+		)
+		return captures
+	}
+
+	moves := make([]Move, 0)
 	for i := 0; i < ROWS; i++ {
 		for j := 0; j < COLS; j++ {
 			if g.board[i][j] == '_' {
@@ -67,14 +91,23 @@ func (g Game) GetActions() []Move {
 				!g.oTurn && (g.board[i][j] == 'o' || g.board[i][j] == 'O') {
 				continue
 			}
-			moves = append(moves, g.getMovesFromPos(position{i, j})...)
+
+			p := position{i, j}
+			vertMoves := g.getVertMovesFromPos(p)
+			g.captureCheck(
+				p, vertMoves, g.board[i][j], &captures,
+			)
+			if len(captures) == 0 {
+				g.checkForAdjacentVacantSpots(
+					position{i, j}, vertMoves, &moves,
+				)
+			}
 		}
 	}
 
-	//Weed out duplicate actions
-	ret := make([]Move, 0, len(moves))
-	for _, m := range moves {
-		ret = appendIfMissing(ret, m)
+	ret := moves
+	if len(captures) > 0 {
+		ret = captures
 	}
 
 	return ret
@@ -88,6 +121,7 @@ func (g Game) ApplyAction(m Move) (Game, error) {
 	if !m.inBounds() {
 		return Game{}, ErrMoveNotInBounds
 	}
+	g.combo = position{-1, -1}
 
 	//Move starting piece
 	if m.end.i != m.start.i || m.end.j != m.start.j {
@@ -95,11 +129,21 @@ func (g Game) ApplyAction(m Move) (Game, error) {
 		g.board[m.start.i][m.start.j] = '_'
 	}
 
-	g.turnTimer++
-	removePieces := m.getCapturedPieces()
-	for _, p := range removePieces {
+	zeroPosition := position{}
+	if m.capturedPiece != zeroPosition {
 		g.turnTimer = 0
-		g.board[p.i][p.j] = '_'
+		g.board[m.capturedPiece.i][m.capturedPiece.j] = '_'
+
+		//Defer action to opponent if we can't continue a combo
+		//Otherwise, save the end position to continue the combo
+		//next turn
+		if !g.canCaptureFromPos(m.end) {
+			g.deferAction()
+		} else {
+			g.combo = m.end
+		}
+	} else {
+		g.deferAction()
 	}
 
 	//Upgrade
@@ -108,9 +152,6 @@ func (g Game) ApplyAction(m Move) (Game, error) {
 	} else if m.end.i == 0 && g.board[m.end.i][m.end.j] == 'o' {
 		g.board[m.end.i][m.end.j] = 'O'
 	}
-
-	//Switch turns
-	g.oTurn = !g.oTurn
 
 	return g, nil
 }
